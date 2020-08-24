@@ -37,8 +37,8 @@ suite("UnitTests", () => {
         b.addEventListener("change", (e) => Solver.handleInputChange(e));
       });
       const input = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-      const textArea = document.getElementById("text-input");
       const errorDiv = document.getElementById("error-msg");
+      const textArea = document.getElementById("text-input");
       const solveButton = document.getElementById("solve-button");
 
       for (let i = 0; i < input.length; i++) {
@@ -88,12 +88,21 @@ suite("UnitTests", () => {
     // "Error: Expected puzzle to be 81 characters long." in the
     // `div` with the id "error-msg"
     test("Shows an error for puzzles that are not 81 numbers long", (done) => {
+      Solver.init();
       const shortStr = "83.9.....6.62.71...9......1945....4.37.4.3..6..";
       const longStr =
         "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6...";
       const errorMsg = "Error: Expected puzzle to be 81 characters long.";
       const errorDiv = document.getElementById("error-msg");
+      const textArea = document.getElementById("text-input");
+      const solveButton = document.getElementById("solve-button");
+      textArea.value = shortStr;
+      solveButton.click();
+      expect(errorDiv.textContent).eq(errorMsg);
 
+      textArea.value = longStr;
+      solveButton.click();
+      expect(errorDiv.textContent).eq(errorMsg);
       done();
     });
   });
@@ -103,7 +112,13 @@ suite("UnitTests", () => {
     test("Valid puzzles pass", (done) => {
       const input =
         "769235418851496372432178956174569283395842761628713549283657194516924837947381625";
-
+      Solver.init();
+      const errorDiv = document.getElementById("error-msg");
+      const textArea = document.getElementById("text-input");
+      const solveButton = document.getElementById("solve-button");
+      textArea.value = input;
+      solveButton.click();
+      expect(errorDiv.textContent).eq("");
       done();
     });
 
@@ -111,7 +126,13 @@ suite("UnitTests", () => {
     test("Invalid puzzles fail", (done) => {
       const input =
         "779235418851496372432178956174569283395842761628713549283657194516924837947381625";
-
+      Solver.init();
+      const errorDiv = document.getElementById("error-msg");
+      const textArea = document.getElementById("text-input");
+      const solveButton = document.getElementById("solve-button");
+      textArea.value = input;
+      solveButton.click();
+      expect(errorDiv.textContent).eq("Invalid Board");
       done();
     });
   });
@@ -121,7 +142,13 @@ suite("UnitTests", () => {
     test("Returns the expected solution for an incomplete puzzle", (done) => {
       const input =
         "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
-
+      Solver.init();
+      const errorDiv = document.getElementById("error-msg");
+      const textArea = document.getElementById("text-input");
+      const solveButton = document.getElementById("solve-button");
+      textArea.value = input;
+      solveButton.click();
+      expect(errorDiv.textContent).eq("");
       done();
     });
   });

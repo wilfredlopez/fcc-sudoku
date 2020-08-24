@@ -818,34 +818,12 @@ class Sudoku {
   }
 }
 
-const sudoku = new Sudoku();
-
-//elements
-const textArea = document.getElementById("text-input");
-const errorDiv = document.getElementById("error-msg");
-const solveButton = document.getElementById("solve-button");
-const createButton = document.getElementById("create-button");
-const clearButton = document.getElementById("clear-button");
-const allInputButtons = document.querySelectorAll(".sudoku-input");
 // import { puzzlesAndSolutions } from './puzzle-strings.js';
 
+const sudoku = new Sudoku();
 document.addEventListener("DOMContentLoaded", () => {
   init();
 });
-
-function init() {
-  const initialBoard = sudoku.generate("easy");
-  setTextArea(initialBoard);
-  fillGridWith(initialBoard);
-}
-
-function setTextArea(b) {
-  const textArea = document.getElementById("text-input");
-  return new Promise((res) => {
-    textArea.value = b;
-    res();
-  });
-}
 
 function handleInputChange(e) {
   const textArea = document.getElementById("text-input");
@@ -870,77 +848,124 @@ function handleInputChange(e) {
   }
 }
 
-allInputButtons.forEach((b) => {
-  b.addEventListener("change", handleInputChange);
-});
+function init() {
+  const initialBoard = sudoku.generate("easy");
+  setTextArea(initialBoard);
+  fillGridWith(initialBoard);
 
-solveButton.addEventListener("click", (e) => {
-  const textArea = document.getElementById("text-input");
-  e.preventDefault();
-  if (textArea.value.length !== sudoku.MAX_COUNT) {
-    errorDiv.textContent = "Error: Expected puzzle to be 81 characters long.";
-  } else {
-    errorDiv.textContent = "";
-    validateAndFill(textArea.value);
+  //elements
+  // const textArea = document.getElementById("text-input");
+  const errorDiv = document.getElementById("error-msg");
+  const solveButton = document.getElementById("solve-button");
+  const createButton = document.getElementById("create-button");
+  const clearButton = document.getElementById("clear-button");
+  const allInputButtons = document.querySelectorAll(".sudoku-input");
+
+  function setTextArea(b) {
+    const textArea = document.getElementById("text-input");
+    return new Promise((res) => {
+      textArea.value = b;
+      res();
+    });
   }
-});
 
-createButton.addEventListener("click", (e) => {
-  e.preventDefault();
-  let complete = sudoku.generate("medium");
-  setTextArea(complete);
-  fillGridWith(complete);
-});
+  allInputButtons.forEach((b) => {
+    b.addEventListener("change", (e) => handleInputChange(e));
+  });
 
-function validateAndFill(value, shouldSetArea = true) {
-  const isSolvedOrError = sudoku.validate_board(value);
-  if (isSolvedOrError === true) {
-    const { solution, error, errorMessage } = sudoku.solve(value);
-    console.log({ errorMessage });
-    const grid = sudoku.board_string_to_grid(solution);
-
-    if (error) {
-      errorDiv.textContent = errorMessage;
+  solveButton.addEventListener("click", (e) => {
+    const textArea = document.getElementById("text-input");
+    e.preventDefault();
+    if (textArea.value.length !== sudoku.MAX_COUNT) {
+      errorDiv.textContent = "Error: Expected puzzle to be 81 characters long.";
     } else {
       errorDiv.textContent = "";
+      validateAndFill(textArea.value);
     }
-    if (solution === "") {
-      return;
-    }
+  });
 
+  createButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    let complete = sudoku.generate("medium");
+    setTextArea(complete);
+    fillGridWith(complete);
+  });
+
+  function validateAndFill(value, shouldSetArea = true) {
+    const isSolvedOrError = sudoku.validate_board(value);
+    if (isSolvedOrError === true) {
+      const { solution, error, errorMessage } = sudoku.solve(value);
+      // console.log({ errorMessage });
+      const grid = sudoku.board_string_to_grid(solution);
+
+      if (error) {
+        errorDiv.textContent = errorMessage;
+      } else {
+        errorDiv.textContent = "";
+      }
+      if (solution === "") {
+        return;
+      }
+
+      const gridBody = document.getElementById("grid-table-body");
+
+      for (let i = 0; i < 9; i++) {
+        const elem = gridBody.children[i];
+
+        for (let j = 0; j < 9; j++) {
+          try {
+            elem.children[j].firstElementChild.value = `${grid[i][j]}`;
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      }
+
+      if (shouldSetArea) {
+        setTextArea(solution);
+      }
+    }
+  }
+
+  clearButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    setTextArea(sudoku.BLANK_BOARD);
+    clearGridTable();
+  });
+
+  function clearGridTable() {
     const gridBody = document.getElementById("grid-table-body");
-
     for (let i = 0; i < 9; i++) {
       const elem = gridBody.children[i];
 
       for (let j = 0; j < 9; j++) {
-        try {
-          elem.children[j].firstElementChild.value = `${grid[i][j]}`;
-        } catch (error) {
-          console.log(error);
-        }
+        elem.children[j].firstElementChild.value = ".";
       }
     }
-
-    if (shouldSetArea) {
-      setTextArea(solution);
-    }
   }
-}
 
-clearButton.addEventListener("click", (e) => {
-  e.preventDefault();
-  setTextArea(sudoku.BLANK_BOARD);
-  clearGridTable();
-});
+  function fillGridWith(value) {
+    const isSolvedOrError = sudoku.validate_board(value);
+    if (isSolvedOrError === true) {
+      const grid = sudoku.board_string_to_grid(value);
 
-function clearGridTable() {
-  const gridBody = document.getElementById("grid-table-body");
-  for (let i = 0; i < 9; i++) {
-    const elem = gridBody.children[i];
+      if (grid.length === 0) {
+        return;
+      }
 
-    for (let j = 0; j < 9; j++) {
-      elem.children[j].firstElementChild.value = ".";
+      const gridBody = document.getElementById("grid-table-body");
+
+      for (let i = 0; i < 9; i++) {
+        const elem = gridBody.children[i];
+
+        for (let j = 0; j < 9; j++) {
+          try {
+            elem.children[j].firstElementChild.value = `${grid[i][j]}`;
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      }
     }
   }
 }
@@ -956,31 +981,6 @@ function fillEmptyGridTable() {
   }
 }
 
-function fillGridWith(value) {
-  const isSolvedOrError = sudoku.validate_board(value);
-  if (isSolvedOrError === true) {
-    const grid = sudoku.board_string_to_grid(value);
-
-    if (grid.length === 0) {
-      return;
-    }
-
-    const gridBody = document.getElementById("grid-table-body");
-
-    for (let i = 0; i < 9; i++) {
-      const elem = gridBody.children[i];
-
-      for (let j = 0; j < 9; j++) {
-        try {
-          elem.children[j].firstElementChild.value = `${grid[i][j]}`;
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    }
-  }
-}
-
 /* 
     Export your functions for testing in Node.
     Note: The `try` block is to prevent errors on
@@ -991,5 +991,6 @@ try {
     Sudoku,
     init,
     handleInputChange,
+    sudoku,
   };
 } catch (e) {}

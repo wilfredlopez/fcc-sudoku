@@ -17,6 +17,7 @@ suite("Functional Tests", () => {
   suiteSetup(() => {
     // DOM already mocked -- load sudoku solver then run tests
     Solver = require("../public/sudoku-solver.js");
+    Solver.init();
   });
 
   suite("Text area and sudoku grid update automatically", () => {
@@ -28,7 +29,9 @@ suite("Functional Tests", () => {
 
     // Entering a valid number in the grid automatically updates
     // the puzzle string in the text area
-    test("Valid number in grid updates the puzzle string in the text area", (done) => {
+    test("Valid number in grid updates the puzzle string in the text area", (
+      done,
+    ) => {
       done();
     });
   });
